@@ -1,0 +1,7 @@
+{
+  "dependencies": {
+    "@material/mwc-button": "^0.25.3",
+    "@material/mwc-list": "^0.25.3",
+    "@webcomponents/webcomponentsjs": "^2.6.0"
+  }
+}
