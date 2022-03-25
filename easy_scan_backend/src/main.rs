@@ -25,7 +25,8 @@ async fn manual_hello() -> impl Responder {
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
     HttpServer::new(|| {
-        let path: PathBuf = "./easy_scan_website/build".parse().unwrap();
+        // TODO: Fix this relative path
+        let path: PathBuf = "./../easy_scan_website/build".parse().unwrap();
         
         App::new()
             .wrap(Cors::default()
