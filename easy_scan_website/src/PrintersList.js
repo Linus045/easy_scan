@@ -33,7 +33,8 @@ class PrintersList extends React.Component {
   }
 
   componentDidMount() {
-    fetch('http://localhost:8080/printers')
+  // TODO: Adjust port and hostname here to some global variable 
+    fetch(`http://${window.location.hostname}:8080/printers`)
       .then(res => res.json())
       .then(
         (result) => {
