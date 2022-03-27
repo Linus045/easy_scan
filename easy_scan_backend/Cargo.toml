@@ -12,3 +12,5 @@ actix-cors = "0.6.1"
 uuid = { version = "0.8", features = ["v4", "v5"] }
 serde = { version = "1.0", features = ["derive"] }
 
+[features]
+build_script = []
