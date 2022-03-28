@@ -1,4 +1,4 @@
-import React, {Component} from 'react'
+import React from 'react'
 import '@material/mwc-button'
 import '@material/mwc-list/mwc-list.js'
 import '@material/mwc-list/mwc-list-item.js'
@@ -22,7 +22,7 @@ class PrintersList extends React.Component {
         <div>
        <mwc-list activatable>
           {printers.map((item) => {
-             return <mwc-list-item selected>{item.name} [{item.id}]</mwc-list-item>
+             return <mwc-list-item key={item.name} selected>{item.name} [{item.id}]</mwc-list-item>
             })
           }
         </mwc-list>
@@ -34,7 +34,7 @@ class PrintersList extends React.Component {
 
   componentDidMount() {
   // TODO: Adjust port and hostname here to some global variable 
-    fetch(`http://${window.location.hostname}:8080/printers`)
+    fetch(`http://${window.location.hostname}:8080/api/printers`)
       .then(res => res.json())
       .then(
         (result) => {
