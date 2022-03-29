@@ -1,31 +1,34 @@
-import React, {useState} from 'react'
+import React from 'react'
 import './App.css';
 import PrintersList from './PrintersList.js'
 import FileUploadButton from './FileUploadButton.js'
-import StorageList, {StorageContext} from './StorageList.js'
+import StorageList from './StorageList.js'
+import Consumer, {StorageContextProvider} from './StorageContextProvider.js'
 
-
-const storage = {
-  files: [],
-  setFiles : () => {}
-};
 
 function App() {
-  const [files, setFiles] = useState(null)
-  const storage = {files, setFiles}
   return (
-    <StorageContext.Provider value={storage}>
+    <StorageContextProvider>
     <div className="App">
       <header className="App-header">
         <p>
           Printers found in the local network:
         </p>
         <PrintersList />
-        <FileUploadButton />
-        <StorageList />
+        <Consumer>
+            {ctx => 
+              { 
+                console.log("RE-RENDERED CONSUMER STUFF")
+                return (
+                  <div>
+                    <StorageList files={ctx.files} metadataForFile={ctx.metadataForFile} />
+                    <FileUploadButton setFiles={ctx.setFiles} setMetadataForFile={ctx.setMetadataForFile}/>
+                  </div>
+                )}}
+        </Consumer>
       </header>
     </div>
-    </StorageContext.Provider>
+    </StorageContextProvider>
   );
 }
 

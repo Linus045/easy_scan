@@ -1,6 +1,6 @@
 import React, {useState, useContext} from 'react'
 import '@material/mwc-button'
-import StorageContext from './StorageContextProvider.js'
+import {} from './StorageContextProvider.js'
 
 // TODO: Move into other file
 const UploadStatus = {
@@ -11,9 +11,11 @@ const UploadStatus = {
 }
 
 
-function FileUploadButton() {
+function FileUploadButton(props) {
   let [uploadStatus, setUploadStatus] = useState(UploadStatus.Unknown);
-  let {setFiles} = useContext(StorageContext);
+  let setFiles = props.setFiles;
+  let setMetadataForFile = props.setMetadataForFile
+  const [inputFiles, setInputFiles] = useState([]);
 
   let uploadStatusHtml;
   switch (uploadStatus) {
@@ -34,37 +36,39 @@ function FileUploadButton() {
     let uploadRequest = new XMLHttpRequest();
 
     let url = `http://${window.location.hostname}:8080/api/upload`
-    uploadRequest.addEventListener("onload", (event) => {
-      console.log(event)
+    uploadRequest.addEventListener("load", (event) => {
       setUploadStatus(UploadStatus.OK)
-    });
+      console.log("Files uploaded, refreshing file storage context", inputFiles)
+      setFiles(inputFiles)
 
-    uploadRequest.upload.addEventListener("loadstart", (event) => {
-      console.log("Load Start:")
-      console.log(event);
-    });
-
-    uploadRequest.upload.addEventListener("progress", (event) => {
-      console.log("Progress:")
-      console.log(event);
-      let percent = 100 / event.total * event.loaded;
-      console.log(`Uploaded ${Math.trunc(percent)}/100%`);
+      for (let i = 0; i < inputFiles.length; ++i) {
+        let file = inputFiles[i];
+        let filename = file.name;
+        let metadata_url = `http://${window.location.hostname}:8080/api/metadata/${filename}`
+        fetch(metadata_url).then((response) => {
+          response.json().then((data) => {
+            setMetadataForFile(filename, data)
+          });
+        })
+      }
     });
 
     uploadRequest.addEventListener("error", (event) => {
       setUploadStatus(UploadStatus.Failed)
     });
 
-    let filesObject = document.getElementById("file_upload_input")
-    let files = filesObject.files
-    // move these into local storage/cache?!
+    uploadRequest.upload.addEventListener("loadstart", (event) => {
+    });
 
-    console.log("Setting files: ", files)
-    setFiles(files)
+    uploadRequest.upload.addEventListener("progress", (event) => {
+      let percent = 100 / event.total * event.loaded;
+      console.log(`Uploaded ${Math.trunc(percent)}/100%`);
+    });
+
 
     let formdata = new FormData()
-    for (let i = 0; i < files.length; i++) {
-      formdata.append(files[i].name, files[i])
+    for (let i = 0; i < inputFiles.length; i++) {
+      formdata.append(inputFiles[i].name, inputFiles[i])
     }
 
     uploadRequest.open("POST", url, true);
@@ -72,9 +76,12 @@ function FileUploadButton() {
   }
 
   function onSelectFileClick() {
-    console.log("Clicked")
     document.getElementById("file_upload_input").click();
+
+    let filesObject = document.getElementById("file_upload_input")
+    setInputFiles(filesObject.files)
   }
+
 
   function handleSubmit(event) {
     event.preventDefault();
