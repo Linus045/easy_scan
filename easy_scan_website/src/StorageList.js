@@ -18,7 +18,7 @@ function StorageList(props) {
 
   for (let i = 0; i < files.length; i++) {
     let filename = files[i].name;
-    if(metadata[filename] == null) {
+    if (metadata[filename] == null) {
       console.log(`Preview images for ${filename} were not found`)
       continue;
     }
@@ -31,19 +31,19 @@ function StorageList(props) {
       let imageName = previews[j].replace(/\.[^/.]+$/, "") + "-1";
       let url = `http://${window.location.hostname}:8080/api/previews/${previews[j]}`;
       preview_images.push((
-          <img 
-            src={url} height={100} width={100} style={{height: '100', width: '100'}} alt={`${imageName} was not found`} />
+        <img
+          src={url} height={100} width={100} style={{ height: '100', width: '100' }} alt={`${imageName} was not found`} />
       ))
     }
     //TODO: Request images after a delay or again if first request failed due to the previews not being generated
-      filesHtml.push(
-//        <mwc-list-item key={files[i].name} style={{height: '100%', width: '100%', 'object-fit': 'contain'}}>
-        <div>
-          {files[i].name}
-          {preview_images}
-    </div>
-//        </mwc-list-item>
-      );
+    filesHtml.push(
+      //        <mwc-list-item key={files[i].name} style={{height: '100%', width: '100%', 'object-fit': 'contain'}}>
+      <div>
+        {files[i].name}
+        {preview_images}
+      </div>
+      //        </mwc-list-item>
+    );
   }
   return (
     <mwc-list>

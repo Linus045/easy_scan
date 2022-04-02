@@ -16,24 +16,24 @@ class PrintersList extends React.Component {
 
 
   render() {
-    const {isLoaded, printers} = this.state;
-    if(isLoaded) {
+    const { isLoaded, printers } = this.state;
+    if (isLoaded) {
       return (
         <div>
-       <mwc-list activatable>
-          {printers.map((item) => {
-             return <mwc-list-item key={item.name} selected>{item.name} [{item.id}]</mwc-list-item>
+          <mwc-list activatable>
+            {printers.map((item) => {
+              return <mwc-list-item key={item.name} selected>{item.name} [{item.id}]</mwc-list-item>
             })
-          }
-        </mwc-list>
+            }
+          </mwc-list>
         </div>
       )
-    }else
+    } else
       return <h1>Loading...</h1>;
   }
 
   componentDidMount() {
-  // TODO: Adjust port and hostname here to some global variable 
+    // TODO: Adjust port and hostname here to some global variable 
     fetch(`http://${window.location.hostname}:8080/api/printers`)
       .then(res => res.json())
       .then(

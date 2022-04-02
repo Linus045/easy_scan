@@ -1,22 +1,24 @@
-use actix_files::{Files, NamedFile};
-use actix_web::{get, post, web, http::header::ContentType, HttpResponse, Error, HttpServer, App, Responder, Result};
-use actix_web::error;
-use std::{path::PathBuf, env};
-use actix_multipart::{Multipart, Field};
 use actix_cors::Cors;
+use actix_files::{Files, NamedFile};
+use actix_multipart::{Field, Multipart};
+use actix_web::error;
+use actix_web::{
+    get, http::header::ContentType, post, web, App, Error, HttpResponse, HttpServer, Responder,
+    Result,
+};
 use futures_util::stream::StreamExt as _;
-use std::fs::File;
-use std::fs;
-use std::io::prelude::*;
-use std::process::Command;
-use std::ffi::OsStr;
-use std::path::Path;
-use std::fs::create_dir_all;
-use std::env::set_current_dir;
 use serde::Serialize;
+use std::env::set_current_dir;
+use std::ffi::OsStr;
+use std::fs;
+use std::fs::create_dir_all;
+use std::fs::File;
+use std::io::prelude::*;
+use std::path::Path;
+use std::process::Command;
+use std::{env, path::PathBuf};
 
 mod printer;
-
 
 #[post("/upload")]
 async fn file_upload(mut payload: Multipart) -> Result<HttpResponse, Error> {
@@ -38,15 +40,28 @@ async fn file_upload(mut payload: Multipart) -> Result<HttpResponse, Error> {
         // TODO: name file to better identify it
         // TODO: Store file in some kind of working/data directory (set by some config)
         // TODO: Use Path objects instead of string literals
-        let mut file = File::create(format!("files/{}",name))?;
+        let mut file = File::create(format!("files/{}", name))?;
         file.write_all(&bytes)?;
 
         // pdftoppm -jpeg -r 20 kurzanleitungen_pdfa.pdf test
         // println!("Converting file to preview image: {}", &name);
         let msg = format!("pdftoppm Failed for file: {}", &name);
         let mut output = Command::new("pdftoppm");
-        let preview_filename = format!("previews/{}", Path::new(&format!("files/{}",name)).file_stem().unwrap().to_str().unwrap());
-        output.args(["-jpeg", "-r", "10", &format!("files/{}", name), &preview_filename]);
+        let preview_filename = format!(
+            "previews/{}",
+            Path::new(&format!("files/{}", name))
+                .file_stem()
+                .unwrap()
+                .to_str()
+                .unwrap()
+        );
+        output.args([
+            "-jpeg",
+            "-r",
+            "10",
+            &format!("files/{}", name),
+            &preview_filename,
+        ]);
         // println!("{:?}",output.get_args().collect::<Vec<&OsStr>>());
         output.spawn().expect(&msg);
     }
@@ -76,25 +91,29 @@ struct PDFMetadata {
 #[get("/metadata/{filename}")]
 async fn get_metadata(filepath: web::Path<String>) -> Result<impl Responder, Error> {
     println!("Trying to receive metadata for {}", &filepath);
-    let filename = Path::new(&filepath.to_string()).file_stem().unwrap().to_str().unwrap().to_string();
+    let filename = Path::new(&filepath.to_string())
+        .file_stem()
+        .unwrap()
+        .to_str()
+        .unwrap()
+        .to_string();
     println!("Trying to match name: {}", filename);
     println!("Filepath to match against {}", filepath);
 
     let metadata: fs::Metadata = fs::metadata(format!("files/{}", &filepath))?;
     if metadata.is_file() {
         let mut files: Vec<String> = fs::read_dir("previews")?
-                .map(|file| String::from(file.unwrap().file_name().to_str().unwrap()))
-                .filter(|file| file.starts_with(&format!("{}-",&filename)))
-                .collect::<Vec<String>>();
+            .map(|file| String::from(file.unwrap().file_name().to_str().unwrap()))
+            .filter(|file| file.starts_with(&format!("{}-", &filename)))
+            .collect::<Vec<String>>();
         files.sort();
         let metadata = PDFMetadata {
             name: String::from(&filepath.to_string()),
             preview_filenames: files.clone(),
-            page_count: files.len() as i32
-            //other stuff
+            page_count: files.len() as i32, //other stuff
         };
-        return Ok(web::Json(metadata))
-    }else{
+        return Ok(web::Json(metadata));
+    } else {
         return Err(error::ErrorNotFound::<&str>("File not found"));
     }
 }
@@ -118,7 +137,7 @@ async fn main() -> std::io::Result<()> {
 
         let path: PathBuf = if cfg!(feature = "build_script") {
             "./website/static".parse().unwrap()
-        }else {
+        } else {
             "./../easy_scan_website/build".parse().unwrap()
         };
         println!("CWD: {}", env::current_dir().unwrap().to_str().unwrap());
@@ -130,13 +149,19 @@ async fn main() -> std::io::Result<()> {
             .service(get_preview_file)
             .service(get_metadata);
         App::new()
-            .wrap(Cors::default()
-                .allow_any_origin()
-                .allowed_methods(vec!["GET", "POST"])
-            ).service(api_scope)
+            .wrap(
+                Cors::default()
+                    .allow_any_origin()
+                    .allowed_methods(vec!["GET", "POST"]),
+            )
+            .service(api_scope)
             .service(echo)
             .route("/hey", web::get().to(manual_hello))
-            .service(Files::new("/", path).show_files_listing().index_file("index.html"))
+            .service(
+                Files::new("/", path)
+                    .show_files_listing()
+                    .index_file("index.html"),
+            )
     })
     .bind(("127.0.0.1", 8080))?
     .run()
