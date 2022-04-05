@@ -3,6 +3,8 @@ import './App.css';
 import PrintersList from './PrintersList.js'
 import FileUploadButton from './FileUploadButton.js'
 import StorageList from './StorageList.js'
+import EditView from './edit_view/EditView.js'
+
 import Consumer, { StorageContextProvider } from './StorageContextProvider.js'
 
 
@@ -18,12 +20,24 @@ function App() {
           <Consumer>
             {ctx => {
               console.log("RE-RENDERED CONSUMER STUFF")
-              return (
-                <div>
-                  <StorageList files={ctx.files} metadataForFile={ctx.metadataForFile} />
-                  <FileUploadButton setFiles={ctx.setFiles} setMetadataForFile={ctx.setMetadataForFile} />
-                </div>
-              )
+              if (!ctx.showFileEditor) {
+                return (
+                  <div>
+                    <FileUploadButton
+                      setFiles={ctx.setFiles}
+                      setMetadataForFile={ctx.setMetadataForFile}
+                      setTransformations={ctx.setTransformations}
+                      setShowFileEditor={ctx.setShowFileEditor}
+                      />
+                  </div>
+                )
+              } else {
+                return (
+                  <div>
+                    <EditView files={ctx.files} metadataForFile={ctx.metadataForFile} transformations={ctx.transformations} setTransformations={ctx.setTransformations} />
+                  </div>
+                )
+              }
             }}
           </Consumer>
         </header>

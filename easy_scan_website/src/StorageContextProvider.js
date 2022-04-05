@@ -5,6 +5,8 @@ const { Provider, Consumer } = React.createContext();
 
 class StorageContextProvider extends Component {
   state = {
+    showFileEditor : false,
+    setShowFileEditor : (value) => this.setState({showFileEditor : value}),
     files: [],
     setFiles: (files) => {
       this.setState({ files: files })
@@ -15,6 +17,11 @@ class StorageContextProvider extends Component {
         this.state.metadataForFile = {}
       this.state.metadataForFile[filename] = metadata
       this.setState({})
+    },
+    transformations : {},
+    setTransformations: (filename, transformation) => {
+      this.state.transformations[filename] = transformation
+      this.setState({})
     }
   };
 
@@ -24,7 +31,11 @@ class StorageContextProvider extends Component {
         files: this.state.files,
         setFiles: this.state.setFiles,
         setMetadataForFile: this.state.setMetadataForFile,
-        metadataForFile: this.state.metadataForFile
+        metadataForFile: this.state.metadataForFile,
+        transformations : this.state.transformations,
+        setTransformations : this.state.setTransformations,
+        showFileEditor : this.state.showFileEditor,
+        setShowFileEditor : this.state.setShowFileEditor
       }}>
         {this.props.children}
       </Provider>

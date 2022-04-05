@@ -1,13 +1,13 @@
-import React, {useState, useContext} from 'react'
+import React, { useState, useContext } from 'react'
 import '@material/mwc-button'
-import {} from './StorageContextProvider.js'
+import { } from './StorageContextProvider.js'
 
 // TODO: Move into other file
 const UploadStatus = {
-    Unknown: 0,
-    Uploading: 1,
-    Failed: 2,
-    OK: 3,
+  Unknown: 0,
+  Uploading: 1,
+  Failed: 2,
+  OK: 3,
 }
 
 
@@ -15,6 +15,8 @@ function FileUploadButton(props) {
   let [uploadStatus, setUploadStatus] = useState(UploadStatus.Unknown);
   let setFiles = props.setFiles;
   let setMetadataForFile = props.setMetadataForFile
+  let setTransformations = props.setTransformations
+  let setShowFileEditor = props.setShowFileEditor
   const [inputFiles, setInputFiles] = useState([]);
 
   let uploadStatusHtml;
@@ -45,9 +47,21 @@ function FileUploadButton(props) {
         let file = inputFiles[i];
         let filename = file.name;
         let metadata_url = `http://${window.location.hostname}:8080/api/metadata/${filename}`
+
+
         fetch(metadata_url).then((response) => {
           response.json().then((data) => {
             setMetadataForFile(filename, data)
+            console.log("Received metadata",data.preview_filenames);
+            for (let j = 0; j < data.preview_filenames.length; ++j) {
+              let transformation = {
+                rotation: 0,
+                deleted: false,
+                position: j
+              }
+              setTransformations(data.preview_filenames[j], transformation);
+            }
+            setShowFileEditor(true)
           });
         })
       }
@@ -91,11 +105,11 @@ function FileUploadButton(props) {
     <div>
       <form onSubmit={handleSubmit}>
         <label>
-          <input id="file_upload_input"  type="file" accept='image/*,.pdf' multiple/>
+          <input id="file_upload_input" type="file" accept='image/*,.pdf' multiple />
           <mwc-button onClick={onSelectFileClick}>Select File</mwc-button>
           <mwc-button onClick={onUploadFiles}>Upload Files</mwc-button>
         </label>
-          {uploadStatusHtml}
+        {uploadStatusHtml}
       </form>
     </div>
   )
