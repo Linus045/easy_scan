@@ -60,8 +60,7 @@ pub fn retrieve_metadata(filepath : &String) -> Result<web::Json<PDFMetadata>, e
         let metadata = PDFMetadata {
             name: String::from(&filepath.to_string()),
             preview_filenames: files.clone(),
-            page_count: files.len() as i32,
-            rotation : 0
+            page_count: files.len() as i32
         };
         return Ok(web::Json(metadata));
     } else {

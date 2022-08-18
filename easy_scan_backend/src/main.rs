@@ -1,18 +1,15 @@
 use actix_cors::Cors;
 use actix_files::{Files, NamedFile};
 use actix_multipart::{Field, Multipart};
-use actix_web::error;
 use actix_web::{get, post, web, App, Error, HttpResponse, HttpServer, Responder, Result};
 use futures_util::stream::StreamExt as _;
 use std::env::set_current_dir;
-use std::fs;
 use std::fs::create_dir_all;
-use std::path::Path;
 use std::{env, path::PathBuf};
 
+mod metadata;
 mod pdf_handler;
 mod printer;
-mod metadata;
 
 #[post("/upload")]
 async fn file_upload(mut payload: Multipart) -> Result<HttpResponse, Error> {
@@ -22,9 +19,9 @@ async fn file_upload(mut payload: Multipart) -> Result<HttpResponse, Error> {
 
     while let Some(item) = payload.next().await {
         let mut field: Field = item?;
-        let content_type = field.content_type();
+        let _content_type = field.content_type();
         let name = String::from(field.name());
-        let content_disposition = field.content_disposition();
+        let _content_disposition = field.content_disposition();
         // println!("\ncontent_type:\n{}\nname:\n{}\ncontent_disposition:\n{}", content_type, name, content_disposition);
 
         let mut bytes = web::BytesMut::new();
