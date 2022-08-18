@@ -15,8 +15,8 @@ impl Printer {
     /**
      * Return all printers on system
      */
-    pub fn get_printers() -> Vec<Printer> {
-        return get_printers();
+    pub fn get_printers() -> Vec<Self> {
+        get_printers()
     }
 }
 
@@ -36,18 +36,18 @@ fn get_printers() -> Vec<Printer> {
         let out_str =
             "DeskJet_2600\nHP_DeskJet_2700_series_0FB4F5\nHP_ENVY_Photo_6200_series_B1BF35";
 
-        let lines: Vec<&str> = out_str.split_inclusive("\n").collect();
+        let lines: Vec<&str> = out_str.split_inclusive('\n').collect();
         let mut printers: Vec<Printer> = Vec::with_capacity(lines.len());
         for line in lines {
-            let system_name = line.replace("\n", "");
+            let system_name = line.replace('\n', "");
             printers.push(Printer {
                 id: Uuid::new_v5(&Uuid::NAMESPACE_DNS, system_name.as_bytes()).to_string(),
-                name: String::from(system_name.replace("_", " ").trim()),
-                system_name: system_name,
+                name: String::from(system_name.replace('_', " ").trim()),
+                system_name,
             });
         }
-        return printers;
+        printers
     } else {
-        return Vec::with_capacity(0);
+        Vec::with_capacity(0)
     }
 }

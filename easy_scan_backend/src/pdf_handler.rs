@@ -41,7 +41,7 @@ pub fn generate_previews(name: &String) {
 
 // TODO: accept path object instead of simple string
 pub fn retrieve_metadata(filepath : &String) -> Result<web::Json<PDFMetadata>, error::Error> {
-    let filename = Path::new(&filepath.to_string())
+    let filename = Path::new(&filepath)
         .file_stem()
         .unwrap()
         .to_str()
@@ -62,8 +62,8 @@ pub fn retrieve_metadata(filepath : &String) -> Result<web::Json<PDFMetadata>, e
             preview_filenames: files.clone(),
             page_count: files.len() as i32
         };
-        return Ok(web::Json(metadata));
+        Ok(web::Json(metadata))
     } else {
-        return Err(error::ErrorNotFound::<&str>("File not found"));
+        Err(error::ErrorNotFound::<&str>("File not found"))
     }
 }
